@@ -54,7 +54,7 @@ def netstat():
     conn, addr = net_socket_student_server.accept()
 
     while True:
-        data = conn.recv(1024)
+        data = conn.recv(4096)
         if not data:
             break
         connection.sendall(data)

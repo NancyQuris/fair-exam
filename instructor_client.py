@@ -7,6 +7,10 @@ import threading
 import struct
 import pickle
 import cv2
+import queue
+
+
+frame_queue = queue.Queue()
 
 def ftp_command_handling():
     # instructor client
@@ -40,6 +44,13 @@ def exam_start():
     stream.start()
     net_stat = threading.Thread(target=netstat)
     net_stat.start()
+
+    while True:
+        if not frame_queue.empty():
+            current_frame = frame_queue.get()
+            cv2.imshow('streaming from student', current_frame)
+            cv2.waitKey(1)
+
     # when exam ends, force to upload file
     stream.join()
     net_stat.join()
@@ -149,7 +160,6 @@ def downloadFile():
 def streaming():
     video_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     video_socket.connect((setting.streaming_server_host, setting.streaming_instructor_server_port))
-
     data = b''
     payload_size = struct.calcsize("L")
     while True:
@@ -164,7 +174,7 @@ def streaming():
         data = data[msg_size:]
 
         frame = pickle.loads(frame_data)
-        cv2.imshow('frame', frame)
+        frame_queue.put(frame)
 
 
 def netstat():

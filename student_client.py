@@ -50,6 +50,7 @@ def exam_start():
     uploadFile(user, password, filepath, filename)
 
 
+
 def uploadFile(user, password, filepath, filename):
     print("------------ Upload file ------------")
     print("Building connection to the ftp server...")
@@ -126,7 +127,7 @@ def streaming():
         ret, frame = cap.read()
         data = pickle.dumps(frame)
         video_socket.sendall(struct.pack("L", len(data)) + data)
-        if time.time() - start_time > setting.total_exam_time:
+        if time.time() - start_time > setting.total_exam_time * 1.2:
             break
     video_socket.close()
 
