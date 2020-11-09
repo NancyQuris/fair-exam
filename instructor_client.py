@@ -1,4 +1,5 @@
 from ftplib import FTP
+from cryptography.fernet import Fernet
 import os.path
 import socket
 import time
@@ -89,6 +90,20 @@ def makeDirectory():
     ftp.quit()
     print("------------ Directory Creation Finished------------")
 
+def outputEncryptedFile(filename):
+    key = Fernet.generate_key()
+    f = Fernet(key)
+    read_file = open(filename, 'rb')
+    original = read_file.read()
+    encrypted = f.encrypt(original)
+    newfilename = '(encrypted)' + filename
+    write_file = open(newfilename, 'wb')
+    write_file.write(encrypted)
+    print('Your key: ')
+    print(key.decode('utf-8'))
+    print('Please provide the key to students when exam starts')
+    return newfilename
+
 
 def uploadFile():
     print("------------ Upload file ------------")
@@ -116,12 +131,14 @@ def uploadFile():
         print("Entered file not found.")
         exit(1)
     filename = input("Please name the file in the server: ")
+    newfilepath = outputEncryptedFile(filepath)
 
-    file = open(filepath, 'rb')
+    file = open(newfilepath, 'rb')
     ftp.storbinary('STOR '+filename, file)
     file.close()
     print("File uploaded successfully")
     ftp.quit()
+    os.remove(newfilepath)
     print("------------ File Upload Finished------------")
 
 

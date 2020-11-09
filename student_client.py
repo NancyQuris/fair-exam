@@ -1,4 +1,5 @@
 from ftplib import FTP
+from cryptography.fernet import Fernet
 import psutil
 import time
 import socket
@@ -49,7 +50,16 @@ def exam_start():
     print("Exam finished, file uploading")
     uploadFile(user, password, filepath, filename)
 
-
+def outputDecryptedFile(filename):
+    key = input('Please input the key: ')
+    f = Fernet(key)
+    read_file = open(filename, 'rb')
+    encrypted = read_file.read()
+    decrypted = f.decrypt(encrypted)
+    newfilename = '(decrypted)' + filename
+    write_file = open(newfilename, 'wb')
+    write_file.write(decrypted)
+    print("------------ Decryption Finished ------------")
 
 def uploadFile(user, password, filepath, filename):
     print("------------ Upload file ------------")
@@ -116,6 +126,7 @@ def downloadFile():
     ftp.quit()
     localfile.close()
     print("------------ File Download Finished------------")
+    outputDecryptedFile(filename)
 
 
 def streaming():
